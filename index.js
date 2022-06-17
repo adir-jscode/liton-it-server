@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 var jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 const res = require("express/lib/response");
 const port = process.env.PORT || 5000;
@@ -124,6 +124,7 @@ async function run() {
     });
 
     //SERVICE COLLECTION
+    // Post or add service
 
     app.post("/service", async (req, res) => {
       const service = req.body;
@@ -134,6 +135,14 @@ async function run() {
     //get all services
     app.get("/service", async (req, res) => {
       const result = await serviceCollection.find().toArray();
+      res.send(result);
+    });
+
+    //delete service
+    app.delete("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await serviceCollection.deleteOne(filter);
       res.send(result);
     });
   } finally {
