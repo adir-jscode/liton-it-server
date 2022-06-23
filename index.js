@@ -40,6 +40,7 @@ async function run() {
 
     const userCollection = await client.db("lion-it").collection("userInfo");
     const serviceCollection = await client.db("lion-it").collection("services");
+    const confirmedService = await client.db("lion-it").collection("bookings");
 
     //VERIFY ADMIN
     const verifyAdmin = async (req, res, next) => {
@@ -138,11 +139,27 @@ async function run() {
       res.send(result);
     });
 
+    //get service by _id
+    app.get("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await serviceCollection.findOne(filter);
+      res.send(result);
+    });
+
     //delete service
     app.delete("/service/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await serviceCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    //Confirm service by user
+    app.post("/booked/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await confirmedService.insertOne(filter);
       res.send(result);
     });
   } finally {
