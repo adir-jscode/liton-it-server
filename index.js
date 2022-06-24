@@ -156,10 +156,24 @@ async function run() {
     });
 
     //Confirm service by user
-    app.post("/booked/:email", async (req, res) => {
+    app.post("/booked", async (req, res) => {
+      const bookingInfo = req.body;
+      const result = await confirmedService.insertOne(bookingInfo);
+      res.send(result);
+    });
+
+    //get order specific by email for user
+
+    app.get("/booked/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
-      const result = await confirmedService.insertOne(filter);
+      const result = await confirmedService.find(filter).toArray();
+      res.send(result);
+    });
+
+    //get all confirmed order for manage the orders
+    app.get("/booked", async (req, res) => {
+      const result = await confirmedService.find().toArray();
       res.send(result);
     });
   } finally {
