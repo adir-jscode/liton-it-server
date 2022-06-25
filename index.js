@@ -72,8 +72,28 @@ async function run() {
 
     //get all users
 
-    app.get("/user", verifyJWT, async (req, res) => {
+    app.get("/user", async (req, res) => {
       const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+    //BY ID
+    app.get("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await userCollection.findOne(filter);
+      res.send(result);
+    });
+
+    //User update information for edit profile
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updatedInfo = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: updatedInfo,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
 
@@ -155,6 +175,19 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await serviceCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    //update service
+
+    app.patch("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: data,
+      };
+      const result = await serviceCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
