@@ -43,6 +43,7 @@ async function run() {
     const userCollection = await client.db("lion-it").collection("userInfo");
     const serviceCollection = await client.db("lion-it").collection("services");
     const confirmedService = await client.db("lion-it").collection("bookings");
+    const paymentCollection = await client.db("lion-it").collection("payment");
 
     //VERIFY ADMIN
     const verifyAdmin = async (req, res, next) => {
@@ -179,6 +180,14 @@ async function run() {
       res.send(result);
     });
 
+    //delete order for manage the orders
+    app.delete("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await confirmedService.deleteOne(filter);
+      res.send(result);
+    });
+
     // get order details for payment
     app.get("/payment/:id", async (req, res) => {
       const id = req.params.id;
@@ -200,6 +209,39 @@ async function run() {
       res.send({
         clientSecret: paymentIntent?.client_secret,
       });
+    });
+
+    //payment data sending & update information in booking collection
+
+    app.patch("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const payment = req.body;
+      const updateDoc = {
+        $set: {
+          payment: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const updateBooking = await confirmedService.updateOne(filter, updateDoc);
+      const result = await paymentCollection.insertOne(payment);
+    });
+
+    // Payment approval
+    app.patch("/approval/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const approvalStatus = req.body;
+      const updateDoc = {
+        $set: {
+          approval: approvalStatus.approve,
+        },
+      };
+      const updateApproval = await confirmedService.updateOne(
+        filter,
+        updateDoc
+      );
+      res.send(updateApproval);
     });
   } finally {
   }
