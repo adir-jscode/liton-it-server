@@ -76,8 +76,18 @@ async function run() {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
-    //BY ID
-    app.get("/user/:id", async (req, res) => {
+    //BY Email
+    app.get("/profile", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const filter = { email: email };
+      const result = await userCollection.findOne(filter);
+      console.log(result);
+      res.send(result);
+    });
+
+    // load user info by id for update
+    app.get("/profile/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await userCollection.findOne(filter);
