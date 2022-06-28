@@ -76,6 +76,14 @@ async function run() {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
+
+    //get updated user info
+    app.get("/info", async (req, res) => {
+      const email = req.query.email;
+      const filter = { email: email };
+      const result = await userCollection.findOne(filter);
+      res.send(result);
+    });
     //BY Email
     app.get("/profile", async (req, res) => {
       const email = req.query.email;
@@ -95,9 +103,9 @@ async function run() {
     });
 
     //User update information for edit profile
-    app.put("/user/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: ObjectId(id) };
+    app.put("/user", async (req, res) => {
+      const email = req.query.email;
+      const filter = { email: email };
       const updatedInfo = req.body;
       const options = { upsert: true };
       const updateDoc = {
